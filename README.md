@@ -1,13 +1,55 @@
-# a docker container for streamlining the verification of JSON of youtube channel URL's by means of human in the loop
+>claude pepsi
 
-## takes a JSON of [unverified] youtube channels pops the channel open in pupeteer (headlessly) screenshots  and saves as ``` $artist ```.jpeg for visual ID/verification
+run claude dangerously allow permission sandbox
+
+```
+services:
+  claude:
+    container_name: claude
+    build:
+      context: .
+      dockerfile_inline: |
+        FROM node:20-bookworm-slim
+        RUN apt-get update && apt-get install -y --no-install-recommends \
+            git ca-certificates curl && rm -rf /var/lib/apt/lists/*
+        RUN npm install -g @anthropic-ai/claude-code
+        WORKDIR /workspace
+        RUN useradd -m -s /bin/bash claude && chown -R claude:claude /workspace
+        USER claude
+        ENTRYPOINT ["/bin/bash", "-c", "git config --global user.name \"$${GIT_USER_NAME}\" && git config --global user.email \"$${GIT_USER_EMAIL}\" && exec claude --dangerously-skip-permissions"]
+    stdin_open: true
+    tty: true
+    working_dir: /workspace
+    environment:
+      ANTHROPIC_API_KEY: "sk-ant-xxxxxxxxxxxxxxxx"
+      # ANTHROPIC_BASE_URL: "https://your-gateway.example.com"
+      GIT_USER_NAME: "Your Name"
+      GIT_USER_EMAIL: "you@example.com"
+    volumes:
+      - ./workspace:/workspace
+      - claude-config:/home/claude/.claude
+
+volumes:
+  claude-config:
+```
+
+
 
 
 
 <br>
+
+>verify
+
+
+
+
+
+a docker container for streamlining the verification of JSON of youtube channel URL's by means of human in the loop
+
+takes a JSON of [unverified] youtube channels pops the channel open in pupeteer (headlessly) screenshots  and saves as ``` $artist ```.jpeg for visual ID/verification
+
 <br>
-
-
 
 I was having architecture issues on mac with pupeteer's official docker image so it was done like this....
 
